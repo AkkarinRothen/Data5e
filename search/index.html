@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../css_js/5eadb.css">
+<style>
+
+/* Search-specific styles */
+.search-container {
+    margin: 20px 0;
+    max-width: 500px;
+}
+
+.search-input {
+    margin-bottom: 5px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.search-input:focus {
+    border-color: #888;
+    outline: none;
+}
+
+.search-buttons {
+    margin-top: 10px;
+    text-align: left;
+}
+
+.search-buttons button {
+    background-color: #f8f9fa;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 0 5px;
+    min-height: auto;
+}
+
+.search-buttons button:hover {
+    box-shadow: 0 1px 1px rgba(0,0,0,.1);
+    background-color: #f1f3f4;
+    border: 1px solid #dadce0;
+    color: #202124;
+}
+
+.search-results {
+    margin-top: 20px;
+}
+
+.result-item {
+    border: 1px solid #ddd;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.result-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.result-title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.result-title a:hover {
+    text-decoration: underline;
+    color: #666;
+}
+
+.result-source {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.result-snippet {
+    color: #555;
+    line-height: 1.4;
+}
+
+.no-results {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    margin: 20px 0;
+}
+
+.loading {
+    text-align: center;
+    color: #666;
+    margin: 20px 0;
+}
+
+.search-stats {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.highlight {
+    background-color: #ffff99;
+    padding: 1px 2px;
+}
+
+.search-container .filter-container {
+    margin: 10px 0;
+    padding: 0;
+    background-color: #f8f8f8;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.search-container .filter-header {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+    gap: 8px;
+}
+
+.filter-header:hover {
+    background-color: #e8e8e8;
+}
+
+.filter-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.filter-toggle {
+    font-size: 18px;
+    color: #666;
+    transition: transform 0.2s ease;
+}
+
+.filter-toggle.collapsed {
+    transform: rotate(-90deg);
+}
+
+.filter-content {
+    padding: 15px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.filter-content.collapsed {
+    max-height: 0;
+    padding: 0 15px;
+    opacity: 0;
+}
+
+.source-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 15px;
+}
+
+.filter-section {
+    margin-bottom: 15px;
+}
+
+.filter-section:last-child {
+    margin-bottom: 0;
+}
+
+.filter-section-title {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 8px;
+    padding: 8px 4px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+}
+
+.filter-section-title:hover {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+.filter-section-title input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+.section-toggle {
+    margin-left: auto;
+    font-size: 14px;
+    color: #666;
+    transition: transform 0.2s ease;
+}
+
+.section-toggle.collapsed {
+    transform: rotate(-90deg);
+}
+
+.filter-subsection {
+    margin-left: 25px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.filter-subsection.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0;
+}
+
+.filter-subsection-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.source-filter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    margin-bottom: 6px;
+    background-color: #f8f8f8;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.source-filter:hover {
+    background-color: #eeeeee;
+}
+
+.source-filter input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.source-filter label {
+    font-size: 15px;
+    cursor: pointer;
+    user-select: none;
+    flex: 1;
+    padding: 4px 0;
+}
+
+@media (max-width: 600px) {
+    .source-filter {
+        padding: 16px;
+        gap: 16px;
+    }
+    
+    .source-filter input[type="checkbox"] {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .source-filter label {
+        font-size: 16px;
+        padding: 6px 0;
+    }
+    
+    .filter-subsection {
+        margin-left: 10px;
+    }
+}
+
+.filter-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-actions button {
+    background-color: #666;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    min-height: 44px;
+}
+
+.filter-actions button:hover {
+    background-color: #555;
+}
+
+@media (max-width: 600px) {
+    .filter-actions {
+        justify-content: center;
+    }
+    
+    .filter-actions button {
+        flex: 1;
+        min-width: 120px;
+        padding: 16px 24px;
+        font-size: 16px;
+        min-height: 48px;
+    }
+}
+</style>
+<title>5e Artisanal Database - Search</title>
+</head>
+<body>
+<div><a href="../index.html">5e Artisanal Database</a> → Search</div>
+<h1>Search</h1>
+
+<div class="search-container">
+    <input type="text" id="searchInput" class="search-input" placeholder="Search rules, spells, monsters, and more..." autocomplete="off">
+    
+    <div class="filter-container">
+        <div class="filter-header" onclick="toggleFilters()">
+            <h3>Filter by Source</h3>
+            <span id="filterToggle" class="filter-toggle collapsed">►</span>
+        </div>
+        <div id="filterContent" class="filter-content collapsed">
+            <div id="sourceFilters" class="source-filters">
+                <!-- Checkboxes will be populated dynamically -->
+            </div>
+            <div class="filter-actions">
+                <button type="button" onclick="selectAllSources()">Select All</button>
+                <button type="button" onclick="deselectAllSources()">Deselect All</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="search-buttons">
+        <button type="button" id="searchButton" onclick="performManualSearch()">Search</button>
+        <button type="button" id="luckyButton" onclick="performLuckySearch()">First Result</button>
+    </div>
+</div>
+<p style="font-size: 80%; margin:auto; text-align: center">URL refreshes based on your filters. Add &lucky=1 to the URL to jump to the first hit.</p>
+<div id="searchStats" class="search-stats" style="display: none;"></div>
+<div id="searchResults" class="search-results"></div>
+
+<script src="../css_js/lunr.js"></script>
+<script src="../css_js/search-filters.js"></script>
+<script src="../css_js/search-interface.js"></script>
+<script src="search-data.js"></script>
+<script>
+class SearchEngine {
+    constructor() {
+        this.index = null;
+        this.documents = window.searchDocuments || [];
+        this.preBuiltIndex = window.searchIndex || null;
+        this.isIndexReady = false;
+        this.availableSources = [];
+        this.searchInterface = new SearchInterface();
+        this.init();
+    }
+
+    async init() {
+        if (!this.documents || this.documents.length === 0) {
+            document.getElementById('searchResults').innerHTML = `
+                <div style="color: #d32f2f; background-color: #ffebee; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                    No search data loaded. Please run <code>npm run build-index</code> or ensure <code>search-data.js</code> contains your document data.
+                </div>
+            `;
+            return;
+        }
+        
+        // Create sourceMetadata from documents for the shared filter system
+        this.createSourceMetadataFromDocuments();
+        
+        // Create and setup filters after metadata is created
+        if (!window.searchFilters) {
+            window.searchFilters = new SearchFilters();
+        }
+        window.searchFilters.setupSourceFilters();
+        
+        this.loadSearchIndex();
+        this.setupEventListeners();
+        
+        // Check if there's a query parameter from the main page
+        this.handleUrlQuery();
+    }
+
+    createSourceMetadataFromDocuments() {
+        const sourceMetadata = [];
+        const seenSources = new Set();
+        
+        this.documents.forEach(doc => {
+            if (doc.type === 'ruleset' && !seenSources.has(`ruleset-${doc.source}`)) {
+                sourceMetadata.push({
+                    type: 'ruleset',
+                    source: doc.source
+                });
+                seenSources.add(`ruleset-${doc.source}`);
+            } else if (doc.type !== 'ruleset' && !seenSources.has(`${doc.type}-${doc.category}`)) {
+                sourceMetadata.push({
+                    type: doc.type,
+                    category: doc.category
+                });
+                seenSources.add(`${doc.type}-${doc.category}`);
+            }
+        });
+        
+        window.sourceMetadata = sourceMetadata;
+    }
+
+    loadSearchIndex() {
+        if (this.preBuiltIndex) {
+            // Load the pre-built Lunr index
+            this.index = lunr.Index.load(this.preBuiltIndex);
+            this.isIndexReady = true;
+        } else {
+            this.buildSearchIndex();
+        }
+    }
+
+    buildSearchIndex() {
+        // Store reference to documents for the Lunr callback
+        const documents = this.documents;
+        
+        // Build Lunr index
+        this.index = lunr(function () {
+            this.ref('id');
+            this.field('title', { boost: 10 });
+            this.field('content');
+            this.field('source');
+            this.field('category');
+            
+            documents.forEach((doc) => {
+                this.add(doc);
+            });
+        });
+
+        this.isIndexReady = true;
+    }
+
+    handleUrlQuery() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('q');
+        const lucky = urlParams.get('lucky') || urlParams.get('btnI'); // Support both 'lucky' and Google's 'btnI'
+        
+        // Handle query parameter
+        if (query) {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = query;
+        }
+        
+        // Handle sources parameters using shared filter system  
+        // Apply URL parameters first, then perform search
+        setTimeout(() => {
+            window.searchFilters.applySourceFiltersFromUrl(urlParams);
+            
+            // After filters are applied, handle search
+            setTimeout(() => {
+                if (lucky && query) {
+                    // Perform lucky search automatically
+                    const firstResult = this.performLuckySearch(query);
+                    if (firstResult && firstResult.url) {
+                        window.location.href = firstResult.url;
+                    } else {
+                        // Fall back to regular search if no lucky result
+                        this.performSearch(query);
+                    }
+                } else if (query) {
+                    // Perform regular search if we have a query but no lucky parameter
+                    this.performSearch(query);
+                }
+            }, 50); // Small additional delay to ensure filters are applied
+        }, 100); // Increased delay to ensure filter UI is fully rendered
+    }
+    
+    
+    updateUrlParameters(query = null) {
+        this.searchInterface.updateUrlParameters(query);
+    }
+
+
+    setupEventListeners() {
+        const searchInput = document.getElementById('searchInput');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const query = e.target.value.trim();
+                this.performSearch(query);
+                this.updateUrlParameters(query);
+            }, 300);
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                clearTimeout(searchTimeout);
+                const query = e.target.value.trim();
+                this.performSearch(query);
+                this.updateUrlParameters(query);
+            }
+        });
+    }
+
+    performSearch(query) {
+        const resultsContainer = document.getElementById('searchResults');
+        const statsContainer = document.getElementById('searchStats');
+
+        if (!query) {
+            resultsContainer.innerHTML = '';
+            statsContainer.style.display = 'none';
+            return;
+        }
+
+        if (!this.isIndexReady) {
+            resultsContainer.innerHTML = '<div class="loading">Search index is still loading...</div>';
+            return;
+        }
+
+        try {
+            let results = this.index.search(query);
+            
+            // If no exact results found, try fuzzy search with edit distance 1
+            if (results.length === 0) {
+                const fuzzyQuery1 = query.split(' ').map(term => {
+                    // Only add fuzzy operator if the term doesn't already have one
+                    return term.includes('~') ? term : `${term}~1`;
+                }).join(' ');
+                results = this.index.search(fuzzyQuery1);
+                
+                // If still no results, try with edit distance 2
+                if (results.length === 0) {
+                    const fuzzyQuery2 = query.split(' ').map(term => {
+                        // Only add fuzzy operator if the term doesn't already have one
+                        return term.includes('~') ? term : `${term}~2`;
+                    }).join(' ');
+                    results = this.index.search(fuzzyQuery2);
+                }
+            }
+            
+            // Filter results by selected sources
+            const selectedFilters = window.searchFilters.getSelectedSources();
+            
+            let filteredResults;
+            if (selectedFilters.length === 0) {
+                // No filters selected - show all results
+                filteredResults = results;
+            } else {
+                // Apply filtering
+                filteredResults = results.filter(result => {
+                    const doc = this.documents.find(d => d.id == result.ref);
+                    if (!doc) return false;
+                    
+                    return selectedFilters.some(filter => {
+                        if (filter.type === 'ruleset') {
+                            return doc.type === 'ruleset' && doc.source === filter.source;
+                        } else {
+                            return doc.type === filter.type && doc.category === filter.source;
+                        }
+                    });
+                });
+            }
+            
+            this.displayResults(filteredResults, query);
+        } catch (error) {
+            console.error('Search error:', error);
+            resultsContainer.innerHTML = '<div class="no-results">Search error occurred. Please try a different query.</div>';
+        }
+    }
+
+    displayResults(results, query) {
+        const resultsContainer = document.getElementById('searchResults');
+        const statsContainer = document.getElementById('searchStats');
+
+        if (results.length === 0) {
+            this.searchInterface.displayNoResults();
+            statsContainer.style.display = 'none';
+            return;
+        }
+
+        this.searchInterface.displaySearchStats(results.length, query);
+
+        const resultsHTML = results.map(result => {
+            const doc = this.documents.find(d => d.id == result.ref);
+            return this.searchInterface.createResultItemHtml(doc, query);
+        }).join('');
+
+        resultsContainer.innerHTML = resultsHTML;
+    }
+
+
+    performLuckySearch(query) {
+        if (!query) {
+            return null;
+        }
+
+        if (!this.isIndexReady) {
+            return null;
+        }
+
+        try {
+            let results = this.index.search(query);
+            
+            // If no exact results found, try fuzzy search with edit distance 1
+            if (results.length === 0) {
+                const fuzzyQuery1 = query.split(' ').map(term => {
+                    // Only add fuzzy operator if the term doesn't already have one
+                    return term.includes('~') ? term : `${term}~1`;
+                }).join(' ');
+                results = this.index.search(fuzzyQuery1);
+                
+                // If still no results, try with edit distance 2
+                if (results.length === 0) {
+                    const fuzzyQuery2 = query.split(' ').map(term => {
+                        // Only add fuzzy operator if the term doesn't already have one
+                        return term.includes('~') ? term : `${term}~2`;
+                    }).join(' ');
+                    results = this.index.search(fuzzyQuery2);
+                }
+            }
+            
+            // Filter results by selected sources
+            const selectedFilters = window.searchFilters.getSelectedSources();
+            
+            let filteredResults;
+            if (selectedFilters.length === 0) {
+                // No filters selected - show all results
+                filteredResults = results;
+            } else {
+                // Apply filtering
+                filteredResults = results.filter(result => {
+                    const doc = this.documents.find(d => d.id == result.ref);
+                    if (!doc) return false;
+                    
+                    return selectedFilters.some(filter => {
+                        if (filter.type === 'ruleset') {
+                            return doc.type === 'ruleset' && doc.source === filter.source;
+                        } else {
+                            return doc.type === filter.type && doc.category === filter.source;
+                        }
+                    });
+                });
+            }
+            
+            if (filteredResults.length > 0) {
+                const firstResult = filteredResults[0];
+                const doc = this.documents.find(d => d.id == firstResult.ref);
+                return doc;
+            }
+            
+            return null;
+        } catch (error) {
+            console.error('Lucky search error:', error);
+            return null;
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.searchEngine = new SearchEngine();
+    
+    // Listen for filter changes and update search
+    document.addEventListener('filtersChanged', () => {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput.value.trim()) {
+            window.searchEngine.performSearch(searchInput.value.trim());
+            window.searchEngine.updateUrlParameters();
+        }
+    });
+});
+
+// Global functions are now handled by shared modules
+
+function performManualSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const query = searchInput.value.trim();
+    
+    if (!query) {
+        alert('Please enter a search term first!');
+        searchInput.focus();
+        return;
+    }
+    
+    // Perform regular search and update URL
+    window.searchEngine.performSearch(query);
+    window.searchEngine.updateUrlParameters(query);
+}
+
+function performLuckySearch() {
+    const searchInput = document.getElementById('searchInput');
+    const query = searchInput.value.trim();
+    
+    if (!query) {
+        alert('Please enter a search term first!');
+        searchInput.focus();
+        return;
+    }
+    
+    const firstResult = window.searchEngine.performLuckySearch(query);
+    
+    if (firstResult && firstResult.url) {
+        // Update URL parameters before navigating
+        window.searchEngine.updateUrlParameters(query);
+        // Navigate to the first result
+        window.open(firstResult.url, '_blank');
+    } else {
+        alert('No results found for your search. Try adjusting your filters or search terms.');
+    }
+}
+
+</script>
+
+</body>
+</html>

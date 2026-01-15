@@ -1,0 +1,40 @@
+<!--
+  Code: CC0 1.0 Universal (Public Domain)
+  Data: License described in the main license.html file of the database.
+-->
+<!DOCTYPE html><!DOCTYPE html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="../../css_js/5eadb.css">
+<title>Lazy 5e Treasure Generator</title>
+</head>
+<body>
+<div><a href="../../index.html">5e Artisanal Database</a> → Lazy 5e Treasure Generator</div>
+<h1>Lazy 5e Treasure Generator</h1>
+
+<select id="tier">
+  <option value="tier1">1st–4th Level</option>
+  <option value="tier2">5th–10th Level</option>
+  <option value="tier3">11th–16th Level</option>
+  <option value="tier4">17th+ Level</option>
+</select>
+<br><br><button onclick="generate()">Generate</button>
+
+<div id="output"></div>
+
+<h2>About This Generator</h2>
+<p>The Lazy 5e Generator is a general-purpose 5e treasure generator built for any 5e game. Treasure is based on 5.1 SRD (D&D 2014) magic items and spells.</p>
+<ul>
+<li>Treasure hordes are intended to be rewarded per-session.</li>
+<li>Monetary treasure averages 400 GP at tier 1, 4,000 GP at tier 2, 30,000 GP at tier 3, and 200,000 GP at tier 4.</li>
+<li>Treasure distribution includes two consumable magic items and one permanent magic item of various rarities based on tier.</li>
+<li>Relics are optional and can include spells of any level. They're intended to be chaotic and potentially very powerful. Relics costs are not factored into average treasure values.</li>
+</ul>
+
+<!-- Load external data and generator files -->
+<script src="data.js"></script>
+<script src="../../css_js/generator.js"></script>
+</body>
+</html>

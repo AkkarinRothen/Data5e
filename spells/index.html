@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+
+<title>Spells</title>
+<link rel="stylesheet" type="text/css" href="../css_js/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="../css_js/filter-datatables.css">
+<script type="text/javascript" charset="utf8" src="../css_js/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" charset="utf8" src="../css_js/jquery.dataTables.js"></script>
+<script type="text/javascript" src="../css_js/spells_data.js"></script>
+<script type="text/javascript" src="./custom/custom_spells_index.js"></script>
+<script type="text/javascript" src="../css_js/filter-datatables.js"></script>
+</head>
+<body>
+<div><a href="../index.html">5e Artisanal Database</a> → Spells</div>
+<h1>Spells</h1>
+
+<div class="filter-panel">
+    <div class="filter-header" onclick="toggleFilters()">
+        <h3>Spell Filters</h3>
+        <span class="filter-toggle" id="filterToggle">Show</span>
+    </div>
+    <div class="filter-content collapsed" id="filterContent">
+        <div class="filter-row">
+            <div class="filter-column">
+                <h4>Spell Level</h4>
+                <div class="level-comparison">
+                    <h5>Level Comparison</h5>
+                    <div class="level-comparison-row">
+                        <input type="checkbox" id="levelComparisonEnabled">
+                        <label for="levelComparisonEnabled">Enable level comparison:</label>
+                    </div>
+                    <div class="level-comparison-row" id="levelComparisonControls" style="display: none;">
+                        <select id="levelOperator">
+                            <option value="<">Less than</option>
+                            <option value="=">Equal to</option>
+                            <option value=">">Greater than</option>
+                        </select>
+                        <input type="number" id="levelValue" min="0" max="9" step="1" placeholder="Level">
+                    </div>
+                </div>
+                <div class="filter-options" id="levelFilters">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+            <div class="filter-column">
+                <h4>Class</h4>
+                <div class="filter-options" id="classFilters">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+            <div class="filter-column">
+                <h4>Source</h4>
+                <div class="filter-options" id="sourceFilters">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        <div class="filter-actions">
+            <button type="button" class="primary" onclick="applyFilters()">Apply Filters</button>
+            <button type="button" onclick="clearAllFilters()">Clear All</button>
+            <button type="button" onclick="selectAllFilters()">Select All</button>
+            <div class="filter-summary" id="filterSummary">No filters applied</div>
+        </div>
+    </div>
+</div>
+
+<table id="spellsTable" class="display">
+<thead>
+<tr>
+<th>Name</th>
+<th>Level</th>
+<th>Classes</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<!-- Populated by JavaScript -->
+</tbody>
+</table>
+
+<script>
+$(document).ready(function() {
+    // Combine spells data from main database and custom spells
+    let allSpells = [];
+    
+    // Load main spells data
+    if (typeof spellsData !== 'undefined') {
+        allSpells = [...spellsData];
+    }
+    
+    // Load custom spells data
+    if (typeof customSpellsData !== 'undefined') {
+        allSpells = allSpells.concat(customSpellsData);
+    }
+    
+    new FilterDataTable({
+        tableId: '#spellsTable',
+        dataSource: allSpells,
+        columns: [
+            { 
+                field: 'name', 
+                render: item => generateNameCell(item, 'htmlLink')
+            },
+            { field: 'level' },
+            { field: 'classes' },
+            { field: 'source' }
+        ],
+        filters: {
+            levelComparison: {
+                type: 'levelComparison',
+                columnIndex: 1,
+                label: 'Level Comparison'
+            },
+            level: {
+                type: 'string',
+                field: 'level',
+                columnIndex: 1,
+                label: 'Level',
+                sort: sortByLevel,
+                displayValue: displayLevel
+            },
+            class: {
+                type: 'classes',
+                field: 'classes',
+                columnIndex: 2,
+                label: 'Class'
+            },
+            source: {
+                type: 'exact',
+                field: 'source',
+                columnIndex: 3,
+                label: 'Source'
+            }
+        }
+    });
+});
+</script>
+
+</body>
+</html>

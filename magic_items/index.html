@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+
+<title>Magic Items</title>
+<link rel="stylesheet" type="text/css" href="../css_js/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="../css_js/filter-datatables.css">
+<script type="text/javascript" charset="utf8" src="../css_js/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" charset="utf8" src="../css_js/jquery.dataTables.js"></script>
+<script type="text/javascript" src="../css_js/magic_items_data.js"></script>
+<script type="text/javascript" src="./custom/custom_magic_items_index.js"></script>
+<script type="text/javascript" src="../css_js/filter-datatables.js"></script>
+</head>
+<body>
+<p><a href="../index.html">5e Artisanal Database</a> → Magic Items</p>
+<h1>Magic Items</h1>
+
+<div class="filter-panel">
+    <div class="filter-header" onclick="toggleFilters()">
+        <h3>Filters</h3>
+        <span class="filter-toggle" id="filterToggle">Show</span>
+    </div>
+    <div class="filter-content collapsed" id="filterContent">
+        <div class="filter-row">
+            <div class="filter-column">
+                <h4>Rarity</h4>
+                <div class="filter-options" id="rarityFilters">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+            <div class="filter-column">
+                <h4>Type</h4>
+                <div class="filter-options" id="typeFilters">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+            <div class="filter-column">
+                <h4>Source</h4>
+                <div class="filter-options" id="sourceFilters">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        <div class="filter-actions">
+            <button type="button" class="primary" onclick="applyFilters()">Apply Filters</button>
+            <button type="button" onclick="clearAllFilters()">Clear All</button>
+            <button type="button" onclick="selectAllFilters()">Select All</button>
+            <div class="filter-summary" id="filterSummary">No filters applied</div>
+        </div>
+    </div>
+</div>
+
+<table id="itemsTable" class="display">
+<thead>
+<tr>
+<th>Name</th>
+<th>Rarity</th>
+<th>Type</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<!-- Populated by JavaScript -->
+</tbody>
+</table>
+
+<script>
+$(document).ready(function() {
+    // Combine magic items data from main database and custom items
+    let allItems = [];
+    
+    // Load main magic items data
+    if (typeof magicItemsData !== 'undefined') {
+        allItems = [...magicItemsData];
+    }
+    
+    // Load custom magic items data
+    if (typeof customMagicItemsData !== 'undefined') {
+        allItems = allItems.concat(customMagicItemsData);
+    }
+    
+    new FilterDataTable({
+        tableId: '#itemsTable',
+        dataSource: allItems,
+        columns: [
+            { 
+                field: 'name', 
+                render: item => generateNameCell(item, 'htmlLink')
+            },
+            { 
+                field: 'rarity', 
+                render: item => item.rarity ? item.rarity.replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown'
+            },
+            { field: 'type' },
+            { field: 'source' }
+        ],
+        filters: {
+            rarity: {
+                type: 'exact',
+                field: 'rarity',
+                columnIndex: 1,
+                label: 'Rarity',
+                sort: sortByRarity
+            },
+            type: {
+                type: 'exact',
+                field: 'type',
+                columnIndex: 2,
+                label: 'Type'
+            },
+            source: {
+                type: 'exact',
+                field: 'source',
+                columnIndex: 3,
+                label: 'Source'
+            }
+        }
+    });
+});
+</script>
+
+</body>
+</html>

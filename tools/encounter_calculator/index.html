@@ -1,0 +1,1099 @@
+<!--
+The code for this tool is released under a CC0 1.0 Universal license. You can copy, modify, and distribute this tool, even for commercial purposes, all without asking permission.
+
+Learn about the licensing of the data of this tool in the license.html file located in the root director of this application.
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="user-scalable=yes, width=device-width">
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../../css_js/5eadb.css">
+<style>
+/* Encounter Calculator Specific Styles */
+table {
+    width: 100%;
+    margin: 10px 0;
+}
+th {
+    background-color: #f0f0f0;
+}
+
+/* Common Layout Classes */
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+.flex-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+/* Section Base */
+.section-base {
+    margin: 15px 0;
+    padding: 10px;
+    border: 2px solid;
+    border-radius: 5px;
+}
+.input-section {
+    border-color: #ccc;
+}
+.results {
+    border-color: #333;
+    padding: 12px;
+    background-color: #f8f8f8;
+}
+.input-section h3, .results h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+/* Input Groups */
+.input-group-base {
+    display: flex;
+    flex-direction: column;
+    min-width: 120px;
+}
+.character-group, .monster-group {
+    gap: 8px;
+    margin: 8px 0;
+    padding: 8px;
+    background-color: #f9f9f9;
+    border-radius: 3px;
+}
+.search-input-group {
+    flex: 2;
+}
+.source-select-group {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* Label Styling */
+.input-group label,
+.search-input-group label,
+.source-select-group label {
+    font-weight: bold;
+    margin-bottom: 3px;
+    font-size: 16px;
+}
+
+/* Input Base Styling */
+input, select, .monster-search {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+.monster-search {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Monster Search Components */
+.monster-search-container {
+    position: relative;
+    margin-top: 8px;
+}
+.monster-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 3px 3px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+.monster-option {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+.monster-option:hover, .monster-option.highlighted {
+    background-color: #f0f0f0;
+}
+.monster-option:last-child {
+    border-bottom: none;
+}
+.cr-tag {
+    float: right;
+    color: #666;
+    font-size: 14px;
+}
+.monster-name-display {
+    font-style: italic;
+    color: #666;
+    margin-top: 4px;
+    font-size: 14px;
+}
+
+/* Button Base */
+.button-base {
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+}
+.add-button {
+    background-color: #777;
+    padding: 8px 15px;
+    font-size: 16px;
+}
+.add-button:hover {
+    background-color: #555;
+}
+.remove-button {
+    background-color: #f44336;
+    padding: 5px 10px;
+    font-size: 14px;
+    align-self: flex-end;
+}
+.remove-button:hover {
+    background-color: #da190b;
+}
+.button-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Difficulty Base */
+.difficulty-base {
+    font-weight: bold;
+}
+.difficulty-easy { color: green; }
+.difficulty-medium { color: orange; }
+.difficulty-hard { color: red; }
+.difficulty-deadly { color: darkred; }
+.difficulty-warning { color: #DAA520; }
+
+/* Media Queries */
+@media (max-width: 600px) {
+    .flex-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .input-group-base {
+        min-width: auto;
+    }
+    .remove-button {
+        align-self: center;
+        margin-top: 10px;
+    }
+    .button-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .button-row .add-button {
+        width: 100%;
+    }
+    .search-input-group,
+    .source-select-group {
+        flex: none !important;
+        min-width: auto !important;
+        width: 100%;
+    }
+    .monster-search, 
+    .monster-source-filter {
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+}
+</style>
+<title>5e Encounter Calculator</title>
+<script src="../../css_js/monster_combat_stats.js"></script>
+<script src="../../monsters/custom/custom_monster_index.js"></script>
+<script src="../../css_js/monster-lookup.js"></script>
+</head>
+<body>
+<p><a href="../../index.html">5e Artisanal Database</a> → 5e Encounter Calculator</p>
+
+<h1>5e Encounter Calculator</h1>
+
+<div class="input-section section-base">
+    <h3>Player Characters</h3>
+    <div id="characterGroups">
+        <div class="character-group flex-column">
+            <div class="input-row flex-row">
+                <div class="input-group input-group-base">
+                    <label>Number of Characters</label>
+                    <select class="char-count" onchange="calculateEncounter()">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4" selected>4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                    </select>
+                </div>
+                <div class="input-group input-group-base">
+                    <label>Level</label>
+                    <select class="char-level" onchange="calculateEncounter()">
+                        <option value="1" selected>1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+                <button type="button" class="remove-button button-base" onclick="removeCharacterGroup(this)" style="display: none;">Remove</button>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="add-button button-base" onclick="addCharacterGroup()">+ Add Character Group</button>
+</div>
+
+<div class="input-section section-base">
+    <h3>Monsters</h3>
+    <div id="monsterGroups">
+        <div class="monster-group flex-column">
+            <div class="input-row flex-row">
+                <div class="input-group input-group-base">
+                    <label>Challenge Rating</label>
+                    <select class="monster-cr" onchange="calculateEncounter(); updateMonsterDisplay(this)">
+                        <option value="0">0</option>
+                        <option value="0.125">1/8</option>
+                        <option value="0.25">1/4</option>
+                        <option value="0.5">1/2</option>
+                        <option value="1" selected>1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                        <option value="25">25</option>
+                        <option value="26">26</option>
+                        <option value="27">27</option>
+                        <option value="28">28</option>
+                        <option value="29">29</option>
+                        <option value="30">30</option>
+                    </select>
+                </div>
+                <div class="input-group input-group-base">
+                    <label>Number of Monsters</label>
+                    <select class="monster-count" onchange="calculateEncounter()">
+                        <option value="1" selected>1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+                <button type="button" class="remove-button button-base" onclick="removeMonsterGroup(this)" style="display: none;">Remove</button>
+            </div>
+            <div class="monster-search-container">
+                <div class="search-row flex-row">
+                    <div class="search-input-group input-group-base">
+                        <label>Monster Search (optional)</label>
+                        <input type="text" class="monster-search" placeholder="Search for a monster..." 
+                               data-monster-lookup="true">
+                    </div>
+                    <div class="source-select-group input-group-base">
+                        <label>Source</label>
+                        <select id="monsterSourceFilter" class="monster-source-filter">
+                            <option value="">All Sources</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="monster-dropdown"></div>
+                <div class="monster-name-display"></div>
+            </div>
+        </div>
+    </div>
+    <div class="button-row">
+        <button type="button" class="add-button button-base" onclick="addMonsterGroup()">+ Add Monster Group</button>
+        <button type="button" class="add-button button-base" onclick="exportForCombatTracker()">Export for Combat Tracker</button>
+        <button type="button" class="add-button button-base" onclick="openInCombatTracker()">Open in Combat Tracker</button>
+    </div>
+</div>
+
+<div class="results section-base" id="results">
+    <h3>Encounter Assessment</h3>
+    <p id="encounterResult">Configure your encounter above to see the difficulty assessment.</p>
+</div>
+
+<script>
+
+// Initialize monster lookup instances for each search input
+let monsterLookupInstances = [];
+window.monsterLookupInstances = monsterLookupInstances; // Expose globally for onclick handlers
+let availableMonsters = [];
+
+// Load monsters from main database and merge with combat tracker data
+function initializeMonsterData() {
+    try {
+        if (typeof monsterCombatStats !== 'undefined' && Array.isArray(monsterCombatStats)) {
+            // Combine main monsters with custom monsters
+            const allMonsterData = [...monsterCombatStats];
+            if (typeof customMonsterCombatStats !== 'undefined' && Array.isArray(customMonsterCombatStats)) {
+                allMonsterData.push(...customMonsterCombatStats);
+            }
+            
+            availableMonsters = allMonsterData.map(monster => {
+                return {
+                    name: monster.name,
+                    cr: monster.cr,
+                    hp: monster.hp,
+                    ac: monster.ac,
+                    init: monster.init,
+                    source: monster.source,
+                    sourceFull: monster.source
+                };
+            });
+            MonsterLookup.populateGlobalSourceFilter(availableMonsters);
+            MonsterLookup.updateAllInstances(availableMonsters);
+        } else {
+            throw new Error('monsterCombatStats not available');
+        }
+    } catch (error) {
+        console.error('Monster data not available:', error);
+        availableMonsters = [];
+    }
+}
+
+
+// Helper functions for monster data
+function estimateHPFromCR(cr) {
+    const numCR = parseFloat(cr) || 1;
+    if (numCR <= 0.125) return 7;
+    if (numCR <= 0.25) return 15;
+    if (numCR <= 0.5) return 25;
+    if (numCR <= 1) return 50;
+    if (numCR <= 2) return 70;
+    if (numCR <= 5) return 120;
+    if (numCR <= 10) return 200;
+    if (numCR <= 15) return 300;
+    return Math.floor(numCR * 20);
+}
+
+
+
+
+function updateAllMonsterLookups() {
+    // Update each monster lookup instance with its own source filter
+    monsterLookupInstances.forEach(instance => {
+        if (instance.options.inputElement) {
+            const container = instance.options.inputElement.closest('.monster-search-container');
+            const sourceFilter = container ? container.querySelector('.monster-source-filter') : null;
+            const selectedSource = sourceFilter ? sourceFilter.value : '';
+            
+            instance.options.sourceFilter = (monster) => !selectedSource || monster.sourceFull === selectedSource;
+            instance.handleSearch(instance.options.inputElement.value);
+        }
+    });
+}
+
+
+
+const xpThresholds2014 = {
+    1: { easy: 25, medium: 50, hard: 75, deadly: 100 },
+    2: { easy: 50, medium: 100, hard: 150, deadly: 200 },
+    3: { easy: 75, medium: 150, hard: 225, deadly: 400 },
+    4: { easy: 125, medium: 250, hard: 375, deadly: 500 },
+    5: { easy: 250, medium: 500, hard: 750, deadly: 1100 },
+    6: { easy: 300, medium: 600, hard: 900, deadly: 1400 },
+    7: { easy: 350, medium: 750, hard: 1100, deadly: 1700 },
+    8: { easy: 450, medium: 900, hard: 1400, deadly: 2100 },
+    9: { easy: 550, medium: 1100, hard: 1600, deadly: 2400 },
+    10: { easy: 600, medium: 1200, hard: 1900, deadly: 2800 },
+    11: { easy: 800, medium: 1600, hard: 2400, deadly: 3600 },
+    12: { easy: 1000, medium: 2000, hard: 3000, deadly: 4500 },
+    13: { easy: 1100, medium: 2200, hard: 3400, deadly: 5100 },
+    14: { easy: 1250, medium: 2500, hard: 3800, deadly: 5700 },
+    15: { easy: 1400, medium: 2800, hard: 4300, deadly: 6400 },
+    16: { easy: 1600, medium: 3200, hard: 4800, deadly: 7200 },
+    17: { easy: 2000, medium: 3900, hard: 5900, deadly: 8800 },
+    18: { easy: 2100, medium: 4200, hard: 6300, deadly: 9500 },
+    19: { easy: 2400, medium: 4900, hard: 7300, deadly: 10900 },
+    20: { easy: 2800, medium: 5700, hard: 8500, deadly: 12700 }
+};
+
+const encounterThresholds2024 = {
+    1: { low: 50, moderate: 75, high: 100 },
+    2: { low: 100, moderate: 150, high: 200 },
+    3: { low: 150, moderate: 225, high: 400 },
+    4: { low: 250, moderate: 375, high: 500 },
+    5: { low: 500, moderate: 750, high: 1100 },
+    6: { low: 600, moderate: 1000, high: 1400 },
+    7: { low: 750, moderate: 1300, high: 1700 },
+    8: { low: 1000, moderate: 1700, high: 2100 },
+    9: { low: 1300, moderate: 2000, high: 2600 },
+    10: { low: 1600, moderate: 2300, high: 3100 },
+    11: { low: 1900, moderate: 2900, high: 4100 },
+    12: { low: 2200, moderate: 3700, high: 4700 },
+    13: { low: 2600, moderate: 4200, high: 5400 },
+    14: { low: 2900, moderate: 4900, high: 6200 },
+    15: { low: 3300, moderate: 5400, high: 7800 },
+    16: { low: 3800, moderate: 6100, high: 9800 },
+    17: { low: 4500, moderate: 7200, high: 11700 },
+    18: { low: 5000, moderate: 8700, high: 14200 },
+    19: { low: 5500, moderate: 10700, high: 17200 },
+    20: { low: 6400, moderate: 13200, high: 22000 }
+};
+
+const monsterXP = {
+    0: 10, 0.125: 25, 0.25: 50, 0.5: 100,
+    1: 200, 2: 450, 3: 700, 4: 1100, 5: 1800,
+    6: 2300, 7: 2900, 8: 3900, 9: 5000, 10: 5900,
+    11: 7200, 12: 8400, 13: 10000, 14: 11500, 15: 13000,
+    16: 15000, 17: 18000, 18: 20000, 19: 22000, 20: 25000,
+    21: 33000, 22: 41000, 23: 50000, 24: 62000, 25: 75000,
+    26: 90000, 27: 105000, 28: 120000, 29: 135000, 30: 155000
+};
+
+const encounterMultipliers2014 = {
+    1: 1, 2: 1.5, 3: 2, 4: 2, 5: 2, 6: 2,
+    7: 2.5, 8: 2.5, 9: 2.5, 10: 2.5,
+    11: 3, 12: 3, 13: 3, 14: 3
+};
+
+function getEncounterMultiplier2014(numMonsters) {
+    if (numMonsters >= 15) return 4;
+    return encounterMultipliers2014[numMonsters] || 4;
+}
+
+function formatCR(cr) {
+    const numCR = parseFloat(cr);
+    if (numCR === 0.125) return "1/8";
+    if (numCR === 0.25) return "1/4";
+    if (numCR === 0.5) return "1/2";
+    return cr.toString();
+}
+
+// Initialize monster lookup for a specific search input
+function initializeMonsterLookup(searchInput, dropdownElement) {
+    const container = searchInput.closest('.monster-search-container');
+    const sourceFilter = container.querySelector('.monster-source-filter');
+    
+    const lookup = new MonsterLookup({
+        inputElement: searchInput,
+        resultsElement: dropdownElement,
+        cleanNames: true,
+        showStats: false,  // Only show name, CR, and source
+        showSource: true,
+        sourceFilter: (monster) => {
+            const selectedSource = sourceFilter ? sourceFilter.value : '';
+            return !selectedSource || monster.sourceFull === selectedSource;
+        },
+        onMonsterSelect: (monster) => {
+            selectMonster(searchInput, monster);
+        }
+    });
+    
+    // Override monster data with our available monsters
+    lookup.monsters = availableMonsters;
+    
+    // Add source filter change listener
+    if (sourceFilter) {
+        sourceFilter.addEventListener('change', () => {
+            // If this is the first group, save the selection
+            if (sourceFilter.id === 'monsterSourceFilter') {
+                localStorage.setItem('encounterCalculatorSourceFilter', sourceFilter.value);
+            }
+            // Update the source filter and re-run current search
+            const selectedSource = sourceFilter.value;
+            lookup.options.sourceFilter = (monster) => !selectedSource || monster.sourceFull === selectedSource;
+            lookup.handleSearch(searchInput.value);
+        });
+    }
+    
+    return lookup;
+}
+
+function selectMonster(searchInput, monster) {
+    const container = searchInput.closest('.monster-search-container');
+    const crSelect = container.closest('.monster-group').querySelector('.monster-cr');
+    const nameDisplay = container.querySelector('.monster-name-display');
+    
+    searchInput.value = monster.name;
+    // Ensure CR is converted to string to match dropdown options
+    crSelect.value = String(monster.cr);
+    nameDisplay.textContent = monster.name + ' (CR ' + formatCR(monster.cr) + ')';
+    
+    calculateEncounter();
+}
+
+// Initialize all monster lookup instances
+function populateSourceFilters() {
+    if (availableMonsters.length === 0) return;
+    
+    const sources = [...new Set(availableMonsters.map(m => m.sourceFull || m.source))].sort();
+    const sourceSelects = document.querySelectorAll('.monster-source-filter');
+    
+    sourceSelects.forEach(sourceSelect => {
+        sourceSelect.innerHTML = '<option value="">All Sources</option>';
+        sources.forEach(source => {
+            if (source) {
+                const option = document.createElement('option');
+                option.value = source;
+                option.textContent = source;
+                sourceSelect.appendChild(option);
+            }
+        });
+    });
+    
+    // Restore saved selection to the first source filter only
+    const firstSourceFilter = document.getElementById('monsterSourceFilter');
+    const savedSelection = localStorage.getItem('encounterCalculatorSourceFilter') || '';
+    if (firstSourceFilter && savedSelection && sources.includes(savedSelection)) {
+        firstSourceFilter.value = savedSelection;
+        // Update the monster lookup for the first group
+        updateAllMonsterLookups();
+    }
+}
+
+
+
+function updateMonsterDisplay(crSelect) {
+    const container = crSelect.closest('.monster-group');
+    const searchInput = container.querySelector('.monster-search');
+    const nameDisplay = container.querySelector('.monster-name-display');
+    const selectedCR = crSelect.value;
+    
+    if (searchInput && searchInput.value.trim()) {
+        nameDisplay.textContent = searchInput.value + ' (CR ' + formatCR(selectedCR) + ')';
+    } else {
+        nameDisplay.textContent = '';
+    }
+}
+
+function createCharacterOptions() {
+    let options = '';
+    for (let i = 1; i <= 10; i++) {
+        options += '<option value="' + i + '"' + (i === 1 ? ' selected' : '') + '>' + i + '</option>';
+    }
+    return options;
+}
+
+function createLevelOptions() {
+    let options = '';
+    for (let i = 1; i <= 20; i++) {
+        options += '<option value="' + i + '"' + (i === 1 ? ' selected' : '') + '>' + i + '</option>';
+    }
+    return options;
+}
+
+function createMonsterCountOptions() {
+    let options = '';
+    for (let i = 1; i <= 20; i++) {
+        options += '<option value="' + i + '"' + (i === 1 ? ' selected' : '') + '>' + i + '</option>';
+    }
+    return options;
+}
+
+function createCROptions() {
+    const crValues = [
+        {value: '0', text: '0'},
+        {value: '0.125', text: '1/8'},
+        {value: '0.25', text: '1/4'},
+        {value: '0.5', text: '1/2'}
+    ];
+    
+    for (let i = 1; i <= 30; i++) {
+        crValues.push({value: i.toString(), text: i.toString()});
+    }
+    
+    let options = '';
+    crValues.forEach((cr, index) => {
+        options += '<option value="' + cr.value + '"' + (index === 4 ? ' selected' : '') + '>' + cr.text + '</option>';
+    });
+    return options;
+}
+
+function addCharacterGroup() {
+    const container = document.getElementById('characterGroups');
+    const newGroup = document.createElement('div');
+    newGroup.className = 'character-group';
+    
+    newGroup.innerHTML = '<div class="input-row flex-row">' +
+        '<div class="input-group input-group-base">' +
+        '<label>Number of Characters</label>' +
+        '<select class="char-count" onchange="calculateEncounter()">' +
+        createCharacterOptions() +
+        '</select></div>' +
+        '<div class="input-group input-group-base">' +
+        '<label>Level</label>' +
+        '<select class="char-level" onchange="calculateEncounter()">' +
+        createLevelOptions() +
+        '</select></div>' +
+        '<button type="button" class="remove-button button-base" onclick="removeCharacterGroup(this)">Remove</button>' +
+        '</div>';
+    
+    container.appendChild(newGroup);
+    updateRemoveButtons();
+    calculateEncounter();
+}
+
+function removeCharacterGroup(button) {
+    button.closest('.character-group').remove();
+    updateRemoveButtons();
+    calculateEncounter();
+}
+
+function addMonsterGroup() {
+    const container = document.getElementById('monsterGroups');
+    const newGroup = document.createElement('div');
+    newGroup.className = 'monster-group';
+    newGroup.dataset.lookupId = monsterLookupInstances.length;
+    
+    newGroup.innerHTML = '<div class="input-row flex-row">' +
+        '<div class="input-group input-group-base">' +
+        '<label>Challenge Rating</label>' +
+        '<select class="monster-cr" onchange="calculateEncounter(); updateMonsterDisplay(this)">' +
+        createCROptions() +
+        '</select></div>' +
+        '<div class="input-group input-group-base">' +
+        '<label>Number of Monsters</label>' +
+        '<select class="monster-count" onchange="calculateEncounter()">' +
+        createMonsterCountOptions() +
+        '</select></div>' +
+        '<button type="button" class="remove-button button-base" onclick="removeMonsterGroup(this)">Remove</button>' +
+        '</div>' +
+        '<div class="monster-search-container">' +
+        '<div class="search-row flex-row">' +
+        '<div class="search-input-group input-group-base">' +
+        '<label>Monster Search (optional)</label>' +
+        '<input type="text" class="monster-search" placeholder="Search for a monster..." ' +
+        'data-monster-lookup="true">' +
+        '</div>' +
+        '<div class="source-select-group input-group-base">' +
+        '<label>Source</label>' +
+        '<select class="monster-source-filter">' +
+        '<option value="">All Sources</option>' +
+        '</select>' +
+        '</div>' +
+        '</div>' +
+        '<div class="monster-dropdown"></div>' +
+        '<div class="monster-name-display"></div>' +
+        '</div>';
+    
+    container.appendChild(newGroup);
+    
+    // Initialize monster lookup for the new group
+    const newSearchInput = newGroup.querySelector('.monster-search');
+    const newDropdown = newGroup.querySelector('.monster-dropdown');
+    const newSourceFilter = newGroup.querySelector('.monster-source-filter');
+    
+    // Populate source filter for new group
+    if (newSourceFilter && availableMonsters.length > 0) {
+        const sources = [...new Set(availableMonsters.map(m => m.sourceFull))].sort();
+        newSourceFilter.innerHTML = '<option value="">All Sources</option>';
+        sources.forEach(source => {
+            if (source) {
+                const option = document.createElement('option');
+                option.value = source;
+                option.textContent = source;
+                newSourceFilter.appendChild(option);
+            }
+        });
+        
+        // Inherit source selection from first group
+        const firstSourceFilter = document.getElementById('monsterSourceFilter');
+        if (firstSourceFilter && firstSourceFilter.value) {
+            newSourceFilter.value = firstSourceFilter.value;
+        }
+    }
+    
+    if (newSearchInput && newDropdown) {
+        const lookup = new MonsterLookup({
+            inputElement: newSearchInput,
+            resultsElement: newDropdown,
+            cleanNames: true,
+            showStats: false,
+            showSource: true,
+            onMonsterSelect: (monster) => {
+                selectMonster(newSearchInput, monster);
+            }
+        });
+        monsterLookupInstances.push(lookup);
+        newGroup.dataset.lookupId = monsterLookupInstances.length - 1;
+        lookup.monsters = availableMonsters; // Set monsters for the new instance
+        
+        // Set up source filtering for this specific instance
+        if (newSourceFilter) {
+            newSourceFilter.addEventListener('change', () => {
+                // Update the source filter and re-run current search for this instance
+                const selectedSource = newSourceFilter.value;
+                lookup.options.sourceFilter = (monster) => !selectedSource || monster.sourceFull === selectedSource;
+                lookup.handleSearch(newSearchInput.value);
+            });
+        }
+    }
+    
+    updateRemoveButtons();
+    calculateEncounter();
+}
+
+function removeMonsterGroup(button) {
+    button.closest('.monster-group').remove();
+    updateRemoveButtons();
+    calculateEncounter();
+}
+
+function updateRemoveButtons() {
+    const charGroups = document.querySelectorAll('.character-group');
+    const monsterGroups = document.querySelectorAll('.monster-group');
+    
+    charGroups.forEach((group, index) => {
+        const removeBtn = group.querySelector('.remove-button');
+        if (removeBtn) {
+            removeBtn.style.display = index > 0 ? 'inline-block' : 'none';
+        }
+    });
+    
+    monsterGroups.forEach((group, index) => {
+        const removeBtn = group.querySelector('.remove-button');
+        if (removeBtn) {
+            removeBtn.style.display = index > 0 ? 'inline-block' : 'none';
+        }
+    });
+}
+
+function calculateEncounter() {
+    const charGroups = document.querySelectorAll('.character-group');
+    let totalChars = 0;
+    let total2014Easy = 0, total2014Medium = 0, total2014Hard = 0, total2014Deadly = 0;
+    let totalLevels = 0;
+    
+    charGroups.forEach(group => {
+        const count = parseInt(group.querySelector('.char-count').value) || 0;
+        const level = parseInt(group.querySelector('.char-level').value) || 1;
+        const thresholds2014 = xpThresholds2014[level];
+        
+        totalChars += count;
+        totalLevels += level * count;
+        total2014Easy += thresholds2014.easy * count;
+        total2014Medium += thresholds2014.medium * count;
+        total2014Hard += thresholds2014.hard * count;
+        total2014Deadly += thresholds2014.deadly * count;
+    });
+    
+    const avgLevel = Math.round(totalLevels / totalChars);
+    
+    const monsterGroups = document.querySelectorAll('.monster-group');
+    let totalMonsters = 0;
+    let baseMonsterXP = 0;
+    let totalMonsterCR = 0;
+    
+    monsterGroups.forEach(group => {
+        const count = parseInt(group.querySelector('.monster-count').value) || 0;
+        const cr = parseFloat(group.querySelector('.monster-cr').value) || 0;
+        
+        totalMonsters += count;
+        baseMonsterXP += monsterXP[cr] * count;
+        totalMonsterCR += cr * count;
+    });
+    
+    let resultText = '<strong>Base Monster XP:</strong> ' + baseMonsterXP + '<br>';
+    resultText += '<strong>Party:</strong> ' + totalChars + ' characters, average level ' + avgLevel + '<br><br>';
+    
+    // Lazy Encounter Benchmark (moved to top)
+    const totalCharacterLevels = totalLevels;
+    let lazyBenchmarkText = '';
+    let deadlyThreshold = 0;
+    let singleMonsterDeadly = 0;
+    
+    if (avgLevel >= 17) {
+        const lowerThreshold = totalCharacterLevels * 0.5;
+        const upperThreshold = totalCharacterLevels;
+        deadlyThreshold = lowerThreshold;
+        lazyBenchmarkText = 'Potentially deadly if total monster CR ≥ ' + lowerThreshold + ' to ' + upperThreshold;
+    } else if (avgLevel >= 11) {
+        const lowerThreshold = totalCharacterLevels * 0.5;
+        const upperThreshold = totalCharacterLevels * 0.75;
+        deadlyThreshold = lowerThreshold;
+        lazyBenchmarkText = 'Potentially deadly if total monster CR ≥ ' + lowerThreshold + ' to ' + upperThreshold;
+    } else if (avgLevel >= 5) {
+        deadlyThreshold = totalCharacterLevels * 0.5;
+        lazyBenchmarkText = 'Potentially deadly if total monster CR ≥ ' + deadlyThreshold;
+    } else {
+        deadlyThreshold = totalCharacterLevels * 0.25;
+        lazyBenchmarkText = 'Potentially deadly if total monster CR ≥ ' + deadlyThreshold;
+    }
+    
+    if (avgLevel >= 5) {
+        singleMonsterDeadly = avgLevel * 1.5;
+    } else {
+        singleMonsterDeadly = avgLevel;
+    }
+    
+    let difficultyLazy = '';
+    
+    const highestCR = Math.max(0, ...Array.from(monsterGroups).map(group => 
+        parseFloat(group.querySelector('.monster-cr').value) || 0
+    ));
+    
+    if (avgLevel >= 11) {
+        const lowerThreshold = totalCharacterLevels * 0.5;
+        const upperThreshold = totalCharacterLevels * (avgLevel >= 17 ? 1 : 0.75);
+        
+        if (highestCR >= singleMonsterDeadly || totalMonsterCR >= upperThreshold) {
+            difficultyLazy = '<span class="difficulty-deadly difficulty-base">POTENTIALLY DEADLY (High Threshold)</span>';
+        } else if (totalMonsterCR >= lowerThreshold) {
+            difficultyLazy = '<span class="difficulty-warning difficulty-base">POTENTIALLY DEADLY (Low Threshold)</span>';
+        } else {
+            difficultyLazy = '<span class="difficulty-easy difficulty-base">NOT POTENTIALLY DEADLY</span>';
+        }
+    } else {
+        if (highestCR >= singleMonsterDeadly || totalMonsterCR >= deadlyThreshold) {
+            difficultyLazy = '<span class="difficulty-deadly difficulty-base">POTENTIALLY DEADLY</span>';
+        } else {
+            difficultyLazy = '<span class="difficulty-easy difficulty-base">NOT POTENTIALLY DEADLY</span>';
+        }
+    }
+    
+    resultText += '<strong>Lazy Encounter Benchmark</strong><br>';
+    resultText += 'Total Character Levels: ' + totalCharacterLevels + ' | Total Monster CR: ' + totalMonsterCR + '<br>';
+    resultText += lazyBenchmarkText + '<br>';
+    resultText += 'Potentially deadly single monster if CR ≥ ' + singleMonsterDeadly + '<br>';
+    resultText += 'Assessment: ' + difficultyLazy + '<br><br>';
+    
+    // D&D 2024 Method (moved to second)
+    const thresholds2024Base = encounterThresholds2024[avgLevel] || encounterThresholds2024[20];
+    const thresholds2024 = {
+        low: thresholds2024Base.low * totalChars,
+        moderate: thresholds2024Base.moderate * totalChars,
+        high: thresholds2024Base.high * totalChars
+    };
+    let difficulty2024 = '';
+    
+    if (baseMonsterXP < thresholds2024.low) {
+        difficulty2024 = '<span class="difficulty-easy difficulty-base">LOW</span>';
+    } else if (baseMonsterXP < thresholds2024.moderate) {
+        difficulty2024 = '<span class="difficulty-medium difficulty-base">MODERATE</span>';
+    } else if (baseMonsterXP < thresholds2024.high) {
+        difficulty2024 = '<span class="difficulty-hard difficulty-base">HIGH</span>';
+    } else {
+        difficulty2024 = '<span class="difficulty-deadly difficulty-base">Above HIGH</span>';
+    }
+    
+    resultText += '<strong>D&D 2024 Method</strong><br>';
+    resultText += 'Base Thresholds (level ' + avgLevel + '): Low ' + thresholds2024Base.low + ' | Moderate ' + thresholds2024Base.moderate + ' | High ' + thresholds2024Base.high + '<br>';
+    resultText += 'Party Thresholds (×' + totalChars + ' characters): Low ' + thresholds2024.low + ' | Moderate ' + thresholds2024.moderate + ' | High ' + thresholds2024.high + '<br>';
+    resultText += 'Base Monster XP: ' + baseMonsterXP + ' | ' + difficulty2024 + '<br><br>';
+    
+    // D&D 2014 Method (moved to last)
+    const multiplier2014 = getEncounterMultiplier2014(totalMonsters);
+    const adjusted2014XP = Math.round(baseMonsterXP * multiplier2014);
+    let difficulty2014 = '';
+    
+    if (adjusted2014XP < total2014Easy) {
+        difficulty2014 = '<span class="difficulty-easy difficulty-base">EASY</span>';
+    } else if (adjusted2014XP < total2014Medium) {
+        difficulty2014 = '<span class="difficulty-easy difficulty-base">EASY</span>';
+    } else if (adjusted2014XP < total2014Hard) {
+        difficulty2014 = '<span class="difficulty-medium difficulty-base">MEDIUM</span>';
+    } else if (adjusted2014XP < total2014Deadly) {
+        difficulty2014 = '<span class="difficulty-hard difficulty-base">HARD</span>';
+    } else {
+        difficulty2014 = '<span class="difficulty-deadly difficulty-base">DEADLY</span>';
+    }
+    
+    resultText += '<strong>D&D 2014 Method</strong><br>';
+    resultText += 'Thresholds: Easy ' + total2014Easy + ' | Medium ' + total2014Medium + ' | Hard ' + total2014Hard + ' | Deadly ' + total2014Deadly + '<br>';
+    resultText += 'Multiplier (' + totalMonsters + ' customMonsters): ×' + multiplier2014 + ' | Adjusted XP: ' + adjusted2014XP + ' | ' + difficulty2014;
+    
+    document.getElementById('encounterResult').innerHTML = resultText;
+}
+
+function exportForCombatTracker() {
+    const monsterGroups = document.querySelectorAll('.monster-group');
+    const combatants = [];
+    let combatantId = Date.now();
+    
+    monsterGroups.forEach(group => {
+        const countSelect = group.querySelector('.monster-count');
+        const crSelect = group.querySelector('.monster-cr');
+        const nameDisplay = group.querySelector('.monster-name-display');
+        
+        const count = parseInt(countSelect.value) || 1;
+        const cr = crSelect.value;
+        const displayText = nameDisplay.textContent || 'Unknown Monster';
+        // Extract just the monster name (remove the CR part)
+        const monsterName = displayText.replace(/ \(CR .*\)$/, '');
+        
+        // Find monster data from our available list
+        const monsterData = availableMonsters.find(m => m.name === monsterName);
+        
+        
+        for (let i = 0; i < count; i++) {
+            const finalName = count > 1 ? `${monsterName} ${String.fromCharCode(65 + i)}` : monsterName;
+            
+            // Find monster in availableMonsters array for better data
+            const encounterMonster = availableMonsters.find(m => m.name === monsterName);
+            const sourceMonster = monsterData || encounterMonster;
+            
+            const combatant = {
+                id: combatantId++,
+                name: finalName,
+                initiative: sourceMonster ? (10 + (sourceMonster.init || 0)) : 10,
+                maxHp: sourceMonster ? sourceMonster.hp : null,
+                currentHp: sourceMonster ? sourceMonster.hp : null,
+                ac: sourceMonster ? sourceMonster.ac : null,
+                originalMonsterName: monsterName,
+                monsterSource: sourceMonster ? sourceMonster.source : null
+            };
+            
+            combatants.push(combatant);
+        }
+    });
+    
+    if (combatants.length === 0) {
+        alert('No monsters to export. Please add some monsters first.');
+        return;
+    }
+    
+    const combatData = {
+        combatants: combatants,
+        currentTurnIndex: 0,
+        exportDate: new Date().toISOString()
+    };
+    
+    const dataStr = JSON.stringify(combatData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `encounter_for_combat_tracker_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+    link.click();
+    
+    // Clean up
+    URL.revokeObjectURL(link.href);
+}
+
+function openInCombatTracker() {
+    const monsterGroups = document.querySelectorAll('.monster-group');
+    const combatants = [];
+    let combatantId = Date.now();
+    
+    monsterGroups.forEach(group => {
+        const countSelect = group.querySelector('.monster-count');
+        const crSelect = group.querySelector('.monster-cr');
+        const nameDisplay = group.querySelector('.monster-name-display');
+        
+        const count = parseInt(countSelect.value) || 1;
+        const cr = crSelect.value;
+        const displayText = nameDisplay.textContent || 'Unknown Monster';
+        const monsterName = displayText.replace(/ \(CR .*\)$/, '');
+        
+        // Find monster in availableMonsters array for better data
+        const encounterMonster = availableMonsters.find(m => m.name === monsterName);
+        
+        for (let i = 0; i < count; i++) {
+            const finalName = count > 1 ? `${monsterName} ${String.fromCharCode(65 + i)}` : monsterName;
+            
+            const combatant = {
+                id: combatantId++,
+                name: finalName,
+                initiative: encounterMonster ? (10 + (encounterMonster.init || 0)) : 10,
+                maxHp: encounterMonster ? encounterMonster.hp : null,
+                currentHp: encounterMonster ? encounterMonster.hp : null,
+                ac: encounterMonster ? encounterMonster.ac : null,
+                originalMonsterName: monsterName,
+                monsterSource: encounterMonster ? encounterMonster.source : null
+            };
+            
+            combatants.push(combatant);
+        }
+    });
+    
+    if (combatants.length === 0) {
+        alert('No monsters to transfer. Please add some monsters first.');
+        return;
+    }
+    
+    const combatData = {
+        combatants: combatants,
+        currentTurnIndex: 0,
+        importDate: new Date().toISOString()
+    };
+    
+    // Save data to sessionStorage
+    sessionStorage.setItem('combatTrackerImportData', JSON.stringify(combatData));
+    
+    // Open combat tracker in new window/tab
+    const combatTrackerUrl = `../combat_tracker/index.html?import=session`;
+    window.open(combatTrackerUrl, '_blank');
+}
+
+// Initialize everything when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeMonsterData();
+    
+    // Initialize monster lookup for the first monster group
+    const firstSearchInput = document.querySelector('.monster-search');
+    const firstDropdown = document.querySelector('.monster-dropdown');
+    const firstMonsterGroup = document.querySelector('.monster-group');
+    if (firstSearchInput && firstDropdown && firstMonsterGroup) {
+        const lookup = initializeMonsterLookup(firstSearchInput, firstDropdown);
+        monsterLookupInstances.push(lookup);
+        firstMonsterGroup.dataset.lookupId = '0'; // Set the lookup ID for the first group
+    }
+    
+    
+    calculateEncounter();
+});
+</script>
+
+</body>
+</html>

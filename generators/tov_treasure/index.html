@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="../../css_js/5eadb.css">
+<title>Tales of the Valiant Treasure Generator</title>
+</head>
+<body>
+<div><a href="../../index.html">5e Artisanal Database</a> → Tales of the Valiant Treasure Generator</div>
+
+<h1>Tales of the Valiant Treasure Generator</h1>
+
+<p>This generator builds per-session parcels loosely based on the treasure rewards in the Game Master's Guide.</p>
+
+<select id="tier">
+  <option value="tier1">1st–4th Level</option>
+  <option value="tier2">5th–10th Level</option>
+  <option value="tier3">11th–16th Level</option>
+  <option value="tier4">17th+ Level</option>
+</select>
+<br><br><button onclick="generate()">Generate</button>
+
+<div id="output"></div>
+
+<!-- Load external data and generator files -->
+<script src="data.js"></script>
+<script src="../../css_js/generator.js"></script>
+</body>
+</html>
